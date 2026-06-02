@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود - مدیریت صندوق همیاری</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 400px;
+            animation: slideUp 0.3s ease-out;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .login-header h1 {
+            font-size: 1.5rem;
+            color: #2563eb;
+            margin: 0.5rem 0;
+        }
+        .login-header p {
+            color: #64748b;
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+        .btn-login:hover {
+            background-color: #1d4ed8;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #64748b;
+        }
+        .login-footer a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .alert.show {
+            display: block;
+        }
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-header-icon">🤝</div>
+            <h1>صندوق همیاری</h1>
+            <p>سیستم مدیریت صندوق کوچک‌اندیشی</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">ایمیل</label>
+                <input type="email" id="email" name="email" placeholder="ایمیل خود را وارد کنید" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">رمز عبور</label>
+                <input type="password" id="password" name="password" placeholder="رمز عبور خود را وارد کنید" required>
+            </div>
+
+            <button type="submit" class="btn-login">ورود</button>
+            <div class="loading" id="loading">در حال ورود...</div>
+        </form>
+
+        <div class="login-footer">
+            <p>حساب ندارید؟ <a href="#" onclick="goToRegister()">ثبت‌نام کنید</a></p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loading = document.getElementById('loading');
+            const alert = document.getElementById('alert');
+            
+            loading.style.display = 'block';
+            alert.classList.remove('show');
+            
+            try {
+                const response = await API.login({ email, password });
+                
+                if (response.success) {
+                    saveToken(response.data.access_token);
+                    saveUser(response.data.manager);
+                    window.location.href = 'index.html';
+                } else {
+                    showError(response.error);
+                }
+            } catch (error) {
+                showError('خطایی در ورود رخ داد');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function showError(message) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = 'alert alert-error show';
+        }
+        
+        function goToRegister() {
+            // می‌توان به صفحه ثبت‌نام منتقل شوید
+            alert('صفحه ثبت‌نام هنوز در دست توسعه است');
+        }
+        
+        // بررسی اینکه آیا از قبل وارد شده‌اید
+        document.addEventListener('DOMContentLoaded', () => {
+            if (authToken) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
