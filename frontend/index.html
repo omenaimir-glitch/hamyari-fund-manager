@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت صندوق همیاری</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤝</text></svg>">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <span class="brand-icon">🤝</span>
+                    <h1>صندوق همیاری</h1>
+                </div>
+                <div class="navbar-menu">
+                    <ul class="nav-links">
+                        <li><a href="#dashboard" class="nav-link active" onclick="navigate('dashboard')">داشبورد</a></li>
+                        <li><a href="#members" class="nav-link" onclick="navigate('members')">اعضا</a></li>
+                        <li><a href="#charges" class="nav-link" onclick="navigate('charges')">شارژ‌ها</a></li>
+                        <li><a href="#loans" class="nav-link" onclick="navigate('loans')">وام‌ها</a></li>
+                        <li><a href="#reports" class="nav-link" onclick="navigate('reports')">گزارش‌ها</a></li>
+                    </ul>
+                </div>
+                <div class="navbar-user">
+                    <button class="btn-logout" onclick="logout()">خروج</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section active">
+                <h2>داشبورد</h2>
+                <div class="dashboard-grid">
+                    <div class="card stat-card">
+                        <h3>تعداد اعضا</h3>
+                        <p class="stat-value" id="total-members">0</p>
+                        <p class="stat-label">عضو فعال: <span id="active-members">0</span></p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>موجودی صندوق</h3>
+                        <p class="stat-value" id="fund-balance">0</p>
+                        <p class="stat-label">تومان</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>کل وام‌های فعال</h3>
+                        <p class="stat-value" id="active-loans">0</p>
+                        <p class="stat-label">وام</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>شارژ‌های معوقه</h3>
+                        <p class="stat-value" id="overdue-charges">0</p>
+                        <p class="stat-label">تومان</p>
+                    </div>
+                </div>
+                <div class="dashboard-charts">
+                    <div class="card chart-card">
+                        <h3>نمودار موجودی</h3>
+                        <div id="balance-chart" class="chart-placeholder">نمودار موجودی</div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>نمودار وام‌ها</h3>
+                        <div id="loans-chart" class="chart-placeholder">نمودار وام‌ها</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Members Section -->
+            <section id="members-section" class="section">
+                <div class="section-header">
+                    <h2>مدیریت اعضا</h2>
+                    <button class="btn btn-primary" onclick="openAddMemberModal()">افزودن عضو</button>
+                </div>
+                <div class="filters">
+                    <input type="text" id="member-search" placeholder="جستجوی نام یا شناسه ملی" class="search-input">
+                    <select id="member-status-filter" class="select-input">
+                        <option value="">همه</option>
+                        <option value="active">فعال</option>
+                        <option value="inactive">غیرفعال</option>
+                        <option value="blocked">مسدود</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table class="members-table">
+                        <thead>
+                            <tr>
+                                <th>نام</th>
+                                <th>شناسه ملی</th>
+                                <th>تلفن</th>
+                                <th>موجودی</th>
+                                <th>وام‌های فعال</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-tbody">
+                            <!-- Members will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="members-pagination"></div>
+            </section>
+
+            <!-- Charges Section -->
+            <section id="charges-section" class="section">
+                <div class="section-header">
+                    <h2>مدیریت شارژ‌ها</h2>
+                    <button class="btn btn-primary" onclick="openAddChargeModal()">تنظیم شارژ سالیانه</button>
+                </div>
+                <div class="filters">
+                    <input type="number" id="year-filter" placeholder="سال" class="search-input">
+                    <select id="charge-status-filter" class="select-input">
+                        <option value="">همه</option>
+                        <option value="paid">پرداخت شده</option>
+                        <option value="pending">معلق</option>
+                        <option value="overdue">معوقه</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table class="charges-table">
+                        <thead>
+                            <tr>
+                                <th>نام عضو</th>
+                                <th>ماه</th>
+                                <th>سال</th>
+                                <th>مبلغ</th>
+                                <th>وضعیت</th>
+                                <th>تاریخ پرداخت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="charges-tbody">
+                            <!-- Charges will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Loans Section -->
+            <section id="loans-section" class="section">
+                <div class="section-header">
+                    <h2>مدیر��ت وام‌ها</h2>
+                    <button class="btn btn-primary" onclick="openAddLoanModal()">ایجاد وام جدید</button>
+                </div>
+                <div class="filters">
+                    <select id="loan-status-filter" class="select-input">
+                        <option value="">همه</option>
+                        <option value="active">فعال</option>
+                        <option value="completed">تکمیل شده</option>
+                        <option value="overdue">معوقه</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table class="loans-table">
+                        <thead>
+                            <tr>
+                                <th>نام عضو</th>
+                                <th>مبلغ</th>
+                                <th>تاریخ وام</th>
+                                <th>قسط ماهانه</th>
+                                <th>باقی‌مانده</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loans-tbody">
+                            <!-- Loans will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports-section" class="section">
+                <h2>گزارش‌ها</h2>
+                <div class="reports-grid">
+                    <div class="card report-card">
+                        <h3>موجودی صندوق</h3>
+                        <p id="report-fund-balance">0</p>
+                        <button class="btn btn-secondary" onclick="downloadFundBalanceReport()">دانلود</button>
+                    </div>
+                    <div class="card report-card">
+                        <h3>گزارش شارژ‌ها</h3>
+                        <button class="btn btn-secondary" onclick="downloadChargesReport()">مشاهده</button>
+                    </div>
+                    <div class="card report-card">
+                        <h3>گزارش وام‌ها</h3>
+                        <button class="btn btn-secondary" onclick="downloadLoansReport()">مشاهده</button>
+                    </div>
+                    <div class="card report-card">
+                        <h3>برنامه پرداخت</h3>
+                        <button class="btn btn-secondary" onclick="viewPaymentSchedule()">مشاهده</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="member-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>افزودن عضو</h2>
+                <button class="close-btn" onclick="closeMemberModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="member-form" onsubmit="saveMember(event)">
+                    <div class="form-group">
+                        <label>نام</label>
+                        <input type="text" id="member-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>شناسه ملی</label>
+                        <input type="text" id="member-national-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تلفن</label>
+                        <input type="tel" id="member-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ایمیل</label>
+                        <input type="email" id="member-email">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">ذخیره</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeMemberModal()">انصراف</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="charge-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>تنظیم شارژ سالیانه</h2>
+                <button class="close-btn" onclick="closeChargeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="charge-form" onsubmit="saveCharge(event)">
+                    <div class="form-group">
+                        <label>سال</label>
+                        <input type="number" id="charge-year" required>
+                    </div>
+                    <div class="form-group">
+                        <label>مبلغ سالیانه</label>
+                        <input type="number" id="charge-amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاریخ شروع</label>
+                        <input type="date" id="charge-effective-from">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">ذخیره</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeChargeModal()">انصراف</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="loan-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ایجاد وام جدید</h2>
+                <button class="close-btn" onclick="closeLoanModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loan-form" onsubmit="saveLoan(event)">
+                    <div class="form-group">
+                        <label>نام عضو</label>
+                        <select id="loan-member-id" required>
+                            <option value="">انتخاب عضو</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>مبلغ وام</label>
+                        <input type="number" id="loan-amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاریخ وام</label>
+                        <input type="date" id="loan-date" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">ذخیره</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeLoanModal()">انصراف</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
